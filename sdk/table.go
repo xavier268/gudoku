@@ -69,6 +69,7 @@ func (t *table) Set(a, b, c, d int, val int) {
 	t.tab[a][b][c][d] = val
 }
 
+// TODO - probably wrong computation ?
 func (t *table) Free(a, b, c, d int, val int) bool {
 	if t.Get(a, b, c, d) != 0 {
 		return false

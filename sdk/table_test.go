@@ -43,6 +43,25 @@ func TestScanAuto(t *testing.T) {
 	}
 }
 
+func TestMireVisual(_ *testing.T) {
+	fmt.Println("Printing coordinates system\n-----------------------------------------------------------")
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			for k := 0; k < 3; k++ {
+				for l := 0; l < 3; l++ {
+					fmt.Printf(" %1d%1d%1d%1d ", i, j, k, l)
+				}
+				if k != 2 {
+					fmt.Print(" | ")
+				}
+			}
+			fmt.Println()
+		}
+		fmt.Println("-----------------------------------------------------------")
+	}
+
+}
+
 func TestScanAuto2(t *testing.T) {
 
 	data2 := []string{
@@ -63,19 +82,34 @@ func TestScanAuto2(t *testing.T) {
 func TestFree1(t *testing.T) {
 
 	pos := [...]int{1, 2, 0, 2} // position to check
-	mm := NewTable()
-	mm.Set(pos[0], pos[1], pos[2], pos[3], 8)
+
 	fmt.Printf("Position marker - %v\n", pos)
-	mm.Print()
 
 	data := []struct {
-		s string
-		v map[int]bool // map of free values
+		p [4]int  // position to test
+		s string  // table content
+		v [9]bool // map of free values at position, 1 to 9 (indexed as 0 to 8)
 	}{
-		{" ", map[int]bool{1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true}},
-		{"123456789 456789123 ", map[int]bool{1: true, 2: true, 3: false, 4: true, 5: true, 6: false, 7: true, 8: true, 9: true}},
-		{"123456789 456789123 000000000 456000000 000000000 000000891", map[int]bool{1: false, 2: true, 3: false, 4: false, 5: false, 6: false, 7: true, 8: false, 9: false}},
-		{"123456789 456789123 000000000 456000000 000000000 000000891 002000000", map[int]bool{1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: true, 8: false, 9: false}},
+		{
+			[...]int{1, 2, 0, 2},
+			" ",
+			[...]bool{true, true, true, true, true, true, true, true, true},
+		},
+		{
+			[...]int{1, 2, 0, 2},
+			"123456789 456789123 ",
+			[...]bool{true, true, false, true, true, false, true, true, true},
+		},
+		{
+			[...]int{1, 2, 0, 2},
+			"123456789 456789123 000000000 456000000 000000000 000000891",
+			[...]bool{false, true, false, false, false, false, true, false, false},
+		},
+		{
+			[...]int{1, 2, 0, 2},
+			"123456789 456789123 000000000 456000000 000000000 000000891 002000000",
+			[...]bool{false, false, false, false, false, false, true, false, false},
+		},
 	}
 
 	for _, d := range data {
@@ -83,7 +117,7 @@ func TestFree1(t *testing.T) {
 		tt := Scan(strings.NewReader(d.s))
 		for i := 1; i <= 9; i++ {
 			got := tt.Free(pos[0], pos[1], pos[2], pos[3], i)
-			want := d.v[i]
+			want := d.v[i-1]
 			if got != want {
 				tt.Print()
 				t.Fatalf("Pos %v, Value %d : got %v but want %v", pos, i, got, want)
