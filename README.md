@@ -1,0 +1,2 @@
+# gudoku
+Sudoku builder/solver
