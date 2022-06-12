@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -57,5 +58,37 @@ func TestScanAuto2(t *testing.T) {
 			t.Fatalf("Rescannng failed for i = %d", i)
 		}
 	}
+}
 
+func TestFree1(t *testing.T) {
+
+	pos := [...]int{1, 2, 0, 2} // position to check
+	mm := NewTable()
+	mm.Set(pos[0], pos[1], pos[2], pos[3], 8)
+	fmt.Printf("Position marker - %v\n", pos)
+	mm.Print()
+
+	data := []struct {
+		s string
+		v map[int]bool // map of free values
+	}{
+		{" ", map[int]bool{1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true}},
+		{"123456789 456789123 ", map[int]bool{1: true, 2: true, 3: false, 4: true, 5: true, 6: false, 7: true, 8: true, 9: true}},
+		{"123456789 456789123 000000000 456000000 000000000 000000891", map[int]bool{1: false, 2: true, 3: false, 4: false, 5: false, 6: false, 7: true, 8: false, 9: false}},
+		{"123456789 456789123 000000000 456000000 000000000 000000891 002000000", map[int]bool{1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: true, 8: false, 9: false}},
+	}
+
+	for _, d := range data {
+
+		tt := Scan(strings.NewReader(d.s))
+		for i := 1; i <= 9; i++ {
+			got := tt.Free(pos[0], pos[1], pos[2], pos[3], i)
+			want := d.v[i]
+			if got != want {
+				tt.Print()
+				t.Fatalf("Pos %v, Value %d : got %v but want %v", pos, i, got, want)
+			}
+
+		}
+	}
 }
