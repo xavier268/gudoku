@@ -12,7 +12,7 @@ func TestScanVisual(t *testing.T) {
 	var r io.Reader = strings.NewReader(s)
 	t1 := NewTable()
 	t1.Scan(r)
-	t1.Print()
+	t1.Dump()
 	s = t1.Clone().String()
 	t2 := NewTable()
 	t2.Scan(strings.NewReader(s))
@@ -74,46 +74,28 @@ func TestScanAuto2(t *testing.T) {
 	}
 }
 
-func TestFree1(t *testing.T) {
-	t.Skip()
+func TestValid(t *testing.T) {
+
 	data := []struct {
-		p [4]int  // position to test
-		s string  // table content
-		v [9]bool // map of free values at position, 1 to 9 (indexed as 0 to 8)
+		s string // table content
+		v bool   // valid or not
 	}{
-		{
-			[...]int{1, 2, 0, 2},
-			" ",
-			[...]bool{true, true, true, true, true, true, true, true, true},
-		},
-		{
-			[...]int{1, 2, 0, 2},
-			"123456789 456789123 ",
-			[...]bool{true, true, false, true, true, false, true, true, true},
-		},
-		{
-			[...]int{1, 2, 0, 2},
-			"123456789 456789123 000000000 456000000 000000000 000000891",
-			[...]bool{false, true, false, false, false, false, true, false, false},
-		},
-		{
-			[...]int{1, 2, 0, 2},
-			"123456789 456789123 000000000 456000000 000000000 000000891 002000000",
-			[...]bool{false, false, false, false, false, false, true, false, false},
-		},
+		{"", true},
+		{"123789456 456123789 789456123 231897564 564231897 897564231 312978645 645312978 978645312", true},
+		{"123789156 456123789 789456123 231897564 564231897 897564231 312978645 645312978 978645312", false},
+		{"123789456 456123789 789456123 231897564 564231897 897564231 312879645 645312978 978645312", false},
+		{"123789456 456123789 789456123 431897562 564231897 897564231 312978645 645312978 978645312", false},
 	}
 
 	tt := NewTable()
 	for _, d := range data {
 		tt.Scan(strings.NewReader(d.s))
-		for i := 1; i <= 9; i++ {
-			got := tt.Free(d.p[0], d.p[1], d.p[2], d.p[3], i)
-			want := d.v[i-1]
-			if got != want {
-				tt.Print()
-				t.Fatalf("Pos %v, Value %d : got %v but want %v", d.p, i, got, want)
-			}
-
+		got := tt.Valid()
+		want := d.v
+		if got != want {
+			tt.Dump()
+			t.Fatalf("Expected validity : %v, but actual validity : %v\n%s\n", want, got, d.s)
 		}
+
 	}
 }
