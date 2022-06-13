@@ -1,4 +1,3 @@
 # gudoku
 Sudoku builder/solver
 
-
