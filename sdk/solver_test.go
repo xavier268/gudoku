@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -82,5 +83,20 @@ func TestSolvenEmpty(t *testing.T) {
 			return
 		}
 	}
+}
 
+func TestSolveSlice2(t *testing.T) {
+	tt := NewTable()
+	tt.Scan(strings.NewReader(real2))
+	sol := tt.SolveSlice(2 * time.Second)
+	for _, tt := range sol {
+		tt.Dump()
+	}
+	fmt.Printf("There are %d solutions\n", len(sol))
+	if len(sol) != 2 {
+		t.Fatal("Unexpected length")
+	}
+	if sol[0].Equal(sol[1]) {
+		t.Fatal("Unexpected equal solutions")
+	}
 }

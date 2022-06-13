@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"context"
+	"time"
 )
 
 // Solve attempts to solve provided table, returning true on success, or false if failed.
@@ -37,7 +38,7 @@ func (t *Table) Solve() bool {
 	return false
 }
 
-// Solves attempts to solve provided table for up to n solutions, updating the solution table, possibly empty.
+// Solves attempts to solve provided table for up to n solutions, sending the solution to the channel.
 func (t *Table) Solven(ctx context.Context, out chan *Table) {
 
 	if ctx.Err() != nil {
@@ -69,6 +70,25 @@ func (t *Table) Solven(ctx context.Context, out chan *Table) {
 
 				}
 			}
+		}
+	}
+}
+
+func (t *Table) SolveSlice(duration time.Duration) []*Table {
+
+	var sol []*Table
+	out := make(chan *Table, 10)
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	defer cancel()
+
+	go t.Solven(ctx, out)
+
+	for {
+		select {
+		case ttt := <-out:
+			sol = append(sol, ttt)
+		case <-ctx.Done():
+			return sol
 		}
 	}
 }
