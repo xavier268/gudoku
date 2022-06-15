@@ -9,7 +9,7 @@ import (
 
 type Table struct {
 	// table of values
-	tab [3][3][3][3]int
+	tab [9 * 9]int
 	n   int // nb of non zero values
 }
 
@@ -21,26 +21,27 @@ func NewTable() *Table {
 
 func (t *Table) Clone() *Table {
 	var tt Table
-	tt.Walk(func(i, j, k, l int) bool {
-		tt.Set(i, j, k, l, t.Get(i, j, k, l))
-		return false
-	})
+	for a := 0; a < 9*9; a++ {
+		tt.Set(a, t.Get(a))
+	}
 	return &tt
 }
 
 func (t *Table) Equal(tt *Table) bool {
-	return !t.Walk(
-		func(a, b, c, d int) bool {
-			return t.Get(a, b, c, d) != tt.Get(a, b, c, d)
-		})
+	for a := 0; a < 9*9; a++ {
+		if t.Get(a) != tt.Get(a) {
+			return false
+		}
+	}
+	return true
 }
 
-func (t *Table) Get(a, b, c, d int) int {
-	return t.tab[a][b][c][d]
+func (t *Table) Get(a int) int {
+	return t.tab[a]
 }
 
-func (t *Table) Set(a, b, c, d int, val int) {
-	old := t.Get(a, b, c, d)
+func (t *Table) Set(a int, val int) {
+	old := t.Get(a)
 	if old == val {
 		return
 	}
@@ -59,103 +60,51 @@ func (t *Table) Set(a, b, c, d int, val int) {
 		fmt.Println("Trying to set invalid value : ", val)
 		panic("trying to set invalid value")
 	}
-	t.tab[a][b][c][d] = val
+	t.tab[a] = val
 }
 
 // Valid checks if current table is a valid, possibly incomplete, sudoku.
 func (t *Table) Valid() bool {
-	var ml, mc, mg int // mask lines, col, group
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			ml, mc, mg = 0, 0, 0
-			for k := 0; k < 3; k++ {
-				for l := 0; l < 3; l++ {
-					// lines
-					v := t.Get(i, j, k, l)
-					if v > 0 {
-						b := 1 << v
-						if b&ml != 0 {
-							return false
-						} else {
-							ml = ml | b
-						}
-					}
-					// col
-					v = t.Get(k, l, i, j)
-					if v > 0 {
-						b := 1 << v
-						if b&mc != 0 {
-							return false
-						} else {
-							mc = mc | b
-						}
-					}
-					// groups
-					v = t.Get(i, k, j, l)
-					if v > 0 {
-						b := 1 << v
-						if b&mg != 0 {
-							return false
-						} else {
-							mg = mg | b
-						}
-					}
 
+	var m int
+	for i := range indx { // The various groups to test
+		m = 0 // mask
+		for j := 0; j < 9; j++ {
+			v := t.Get(indx[i][j])
+			if v > 0 { // only test for non empty positions
+				b := 1 << v
+				if b&m != 0 {
+					//fmt.Printf("Invalid grid for %d data, rank %d, value %d\n", i, j, v) // debug
+					return false
+				} else {
+					m = m | b
 				}
 			}
 		}
 
 	}
+
 	return true
-}
-
-// Walk the table, applying the function.
-// If function returns true, the walk is stopped.
-func (t *Table) Walk(wf func(a, b, c, d int) (stop bool)) (stopped bool) {
-
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			for k := 0; k < 3; k++ {
-				for l := 0; l < 3; l++ {
-					if wf(i, j, k, l) {
-						return true
-					}
-				}
-			}
-		}
-	}
-	return false
-
 }
 
 // To string
 func (t *Table) String() string {
-	return t.WalkString(
-		func(i, j, k, l int) string {
-			return fmt.Sprintf("%3d", t.Get(i, j, k, l))
-		})
-}
-
-// WalkString generate a string while walking the table, adding separators and newlines.
-func (t *Table) WalkString(wf func(i, j, k, l int) string) string {
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "-----------------------------------------------------------------------")
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			for k := 0; k < 3; k++ {
-				for l := 0; l < 3; l++ {
-
-					fmt.Fprint(&sb, wf(i, j, k, l))
-				}
-				if k != 2 {
-					fmt.Fprint(&sb, " | ")
-				}
-
-			}
-			fmt.Fprintln(&sb)
+	h := "---------------------------------"
+	for a := 0; a < 9*9; a++ {
+		if a%27 == 0 {
+			fmt.Fprintln(&sb, h)
 		}
-		fmt.Fprintln(&sb, "-----------------------------------------------------------------------")
+		fmt.Fprintf(&sb, "%3d", t.Get(a))
+		switch a % 9 {
+		case 2, 5:
+			fmt.Fprint(&sb, " | ")
+		case 8:
+			fmt.Fprintln(&sb)
+		default:
+		}
 	}
+	fmt.Fprintln(&sb, h)
 	return sb.String()
 }
 
@@ -179,24 +128,19 @@ func (t *Table) Scan(r io.Reader) {
 	if err != nil {
 		panic(err)
 	}
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			for k := 0; k < 3; k++ {
-				for l := 0; l < 3; l++ {
-					// remove non digits
-					for len(buf) != 0 && (buf[0] < '0' || buf[0] > '9') {
-						buf = buf[1:]
-					}
-					// stop if no more digits
-					if len(buf) == 0 {
-						return
-					}
-					// read and use one digit
-					t.Set(i, j, k, l, int(buf[0]-'0'))
-					buf = buf[1:]
-				}
-			}
+	for i := 0; i < 9*9; i++ {
+
+		// remove non digits
+		for len(buf) != 0 && (buf[0] < '0' || buf[0] > '9') {
+			buf = buf[1:]
 		}
+		// stop if no more digits
+		if len(buf) == 0 {
+			return
+		}
+		// read and use one digit
+		t.Set(i, int(buf[0]-'0'))
+		buf = buf[1:]
 	}
 }
 

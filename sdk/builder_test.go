@@ -23,7 +23,7 @@ func TestBuilderVisual(t *testing.T) {
 func TestBuilderStats(t *testing.T) {
 	rand := rand.New(rand.NewSource(4242)) // deterministic
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 300; i++ {
 		ti := time.Now().UnixMicro()
 		p, _ := Build(rand)
 		fmt.Printf("%d\tBuild a puzzle with %d values and %d zeros\t%9d ms\n", i, p.n, 9*9-p.n, time.Now().UnixMicro()-ti)

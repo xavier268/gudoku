@@ -48,11 +48,22 @@ func TestScanAuto(t *testing.T) {
 }
 
 func TestMireVisual(_ *testing.T) {
-	fmt.Println(
-		NewTable().WalkString(
-			func(i, j, k, l int) string {
-				return fmt.Sprintf(" %1d%1d%1d%1d ", i, j, k, l)
-			}))
+	h := "---------------------------------"
+	for a := 0; a < 9*9; a++ {
+		if a%27 == 0 {
+			fmt.Println(h)
+		}
+		fmt.Printf("%3d", a)
+		switch a % 9 {
+		case 2, 5:
+			fmt.Print(" | ")
+		case 8:
+			fmt.Println()
+		default:
+		}
+	}
+	fmt.Println(h)
+
 }
 
 func TestScanAuto2(t *testing.T) {

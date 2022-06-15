@@ -16,26 +16,21 @@ func (t *Table) Solve() bool {
 		return true // done !
 	}
 
-	for a := 0; a < 3; a++ {
-		for b := 0; b < 3; b++ {
-			for c := 0; c < 3; c++ {
-				for d := 0; d < 3; d++ {
-					v := t.Get(a, b, c, d)
-					if v == 0 {
-						for i := 1; i <= 9; i++ {
-							t.Set(a, b, c, d, i)
-							if t.Valid() && t.Solve() {
-								return true
-							} // else iterate values
-						}
-						t.Set(a, b, c, d, 0) // restore state before returning
-						return false
-					}
-
-				}
+	for a := 0; a < 9*9; a++ {
+		v := t.Get(a)
+		if v == 0 {
+			for i := 1; i <= 9; i++ {
+				t.Set(a, i)
+				if t.Valid() && t.Solve() {
+					return true
+				} // else iterate values
 			}
+			t.Set(a, 0) // restore state before returning
+			return false
 		}
+
 	}
+
 	return false
 }
 
@@ -47,24 +42,17 @@ func (t *Table) SolveBack() bool {
 		return true // done !
 	}
 
-	for a := 2; a >= 0; a-- {
-		for b := 2; b >= 0; b-- {
-			for c := 2; c >= 0; c-- {
-				for d := 2; d >= 0; d-- {
-					v := t.Get(a, b, c, d)
-					if v == 0 {
-						for i := 9; i > 0; i-- {
-							t.Set(a, b, c, d, i)
-							if t.Valid() && t.SolveBack() {
-								return true
-							} // else iterate values
-						}
-						t.Set(a, b, c, d, 0) // restore state before returning
-						return false
-					}
-
-				}
+	for a := 9*9 - 1; a >= 0; a-- {
+		v := t.Get(a)
+		if v == 0 {
+			for i := 9; i > 0; i-- {
+				t.Set(a, i)
+				if t.Valid() && t.SolveBack() {
+					return true
+				} // else iterate values
 			}
+			t.Set(a, 0) // restore state before returning
+			return false
 		}
 	}
 	return false
@@ -81,28 +69,22 @@ func (t *Table) Solven(ctx context.Context, out chan *Table) {
 		out <- t.Clone()
 	}
 
-	for a := 0; a < 3; a++ {
-		for b := 0; b < 3; b++ {
-			for c := 0; c < 3; c++ {
-				for d := 0; d < 3; d++ {
-					v := t.Get(a, b, c, d)
-					if v == 0 {
-						for i := 1; i <= 9; i++ {
-							if ctx.Err() != nil {
-								return
-							}
-							t.Set(a, b, c, d, i)
-							if t.Valid() {
-								t.Solven(ctx, out)
-							} // else iterate values
-						}
-						t.Set(a, b, c, d, 0) // restore state before returning
-						return
-					}
-
+	for a := 0; a < 9*9; a++ {
+		v := t.Get(a)
+		if v == 0 {
+			for i := 1; i <= 9; i++ {
+				if ctx.Err() != nil {
+					return
 				}
+				t.Set(a, i)
+				if t.Valid() {
+					t.Solven(ctx, out)
+				} // else iterate values
 			}
+			t.Set(a, 0) // restore state before returning
+			return
 		}
+
 	}
 }
 
