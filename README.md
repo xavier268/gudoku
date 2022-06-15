@@ -15,19 +15,21 @@ import (
 
 func main() {
 
-    // random source
 	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
+	puzzle, solution := sdk.BuildRandom(rand)
 
-    // build a puzzle and its solution
-	puzzle, solution := sdk.Build(rand)
+	puzzle.Dump("Puzzle :")
+	solution.Dump("Solution :")
 
-    // display both
-	fmt.Println("Puzzle (replace all zeroes !) :")
-	puzzle.Dump()
-	fmt.Println("Solution :")
-	fmt.Println(solution)
+	fmt.Println("Shuffling ...")
+	s := sdk.NewShuffler(rand)
+	s.Shuffle(puzzle, solution)
+
+	puzzle.Dump("Puzzle shuffled:")
+	solution.Dump("Solution shuffled :")
 
 }
+
 
 
 ```
