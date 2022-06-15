@@ -108,7 +108,7 @@ func (t *Table) String() string {
 }
 
 func (t *Table) Print() {
-	fmt.Print(t.String())
+	fmt.Print("\n", t.String())
 }
 
 func (t *Table) Dump() {
