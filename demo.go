@@ -11,11 +11,16 @@ import (
 func main() {
 
 	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
-	puzzle, solution := sdk.Build(rand)
+	puzzle, solution := sdk.BuildRandom(rand)
 
-	fmt.Println("Puzzle (replace all zeroes !) :")
-	puzzle.Dump()
-	fmt.Println("Solution :")
-	fmt.Println(solution)
+	puzzle.Dump("Puzzle :")
+	solution.Dump("Solution :")
+
+	fmt.Println("Shuffling ...")
+	s := sdk.NewShuffler(rand)
+	s.Shuffle(puzzle, solution)
+
+	puzzle.Dump("Puzzle shuffled:")
+	solution.Dump("Solution shuffled :")
 
 }

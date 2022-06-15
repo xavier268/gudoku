@@ -5,8 +5,8 @@ import (
 	"math/rand"
 )
 
-// Build build a puzzle and its solution from a random seed.
-func Build(rd *rand.Rand) (puzzle, solution *Table) {
+// BuildRandom build a puzzle and its solution from a random seed.
+func BuildRandom(rd *rand.Rand) (puzzle, solution *Table) {
 
 	t := NewTable()
 
@@ -18,7 +18,7 @@ func Build(rd *rand.Rand) (puzzle, solution *Table) {
 	if !t.Solve() {
 		t.Dump()
 		fmt.Println("Unsolvable random starting position, trying another one ...")
-		return Build(rd)
+		return BuildRandom(rd)
 	}
 
 	solution = t.Clone()
@@ -35,8 +35,8 @@ func BuildFromSolution(solution *Table) (puzzle *Table) {
 	}
 
 	puzzle = solution.Clone() // best puzzle so far
+	try := puzzle.Clone()     // try is a temporary table, modified when solving
 
-	try := puzzle.Clone()
 	for a := 0; a < 9*9; a++ {
 
 		if try.Get(a) == 0 {
@@ -49,8 +49,8 @@ func BuildFromSolution(solution *Table) (puzzle *Table) {
 			if try.Equal(solution) { // still unique ..
 				puzzle.Set(a, 0) // update puzzle
 				//fmt.Printf("%3d", puzzle.n) // show progress, DEBUG
-				try = puzzle.Clone()
-				a = 0 // keep value, reset loop from scratch
+				try = puzzle.Clone() // try from there now
+				a = 0                //  reset loop from scratch
 				continue
 			} else { // not unique anymore, too far : restore and continue exploring loop
 				try = puzzle.Clone() // do not update puzzle ...

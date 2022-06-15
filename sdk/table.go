@@ -111,7 +111,8 @@ func (t *Table) Print() {
 	fmt.Print("\n", t.String())
 }
 
-func (t *Table) Dump() {
+func (t *Table) Dump(message ...string) {
+	fmt.Print("\n\t", message)
 	t.Print()
 	fmt.Printf("There are %d non-zero values and %d zero values\n", t.n, 9*9-t.n)
 	if t.Valid() {
