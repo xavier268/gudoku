@@ -22,28 +22,9 @@ func Build(rd *rand.Rand) (puzzle, solution *Table) {
 	}
 
 	solution = t.Clone()
-	puzzle = t.Clone()
+	puzzle = BuildFromSolution(solution)
+	return puzzle, solution
 
-	// remove positions, starting from a random position, until the puzzle starts to have multiple solutions
-	a := rd.Intn(9 * 9)
-	for {
-		try := puzzle.Clone()
-
-		for ; try.Get(a) == 0; a = (a + 1) % 81 {
-		} // loop until non zero reached
-		try.Set(a, 0)
-
-		if try.SolveBack() {
-			if try.Equal(solution) { // still unique ..
-				puzzle.Set(a, 0) // register  puzzle modification
-				continue
-			} else { // not unique anymore
-				return puzzle, solution
-			}
-		} else { // could not solve
-			panic("internal logic error 2")
-		}
-	}
 }
 
 // BuildFromSolution attempts to find a minimal puzzle for the given solution
@@ -66,8 +47,8 @@ func BuildFromSolution(solution *Table) (puzzle *Table) {
 
 		if try.SolveBack() {
 			if try.Equal(solution) { // still unique ..
-				puzzle.Set(a, 0)            // update puzzle
-				fmt.Printf("%3d", puzzle.n) // show progress, DEBUG
+				puzzle.Set(a, 0) // update puzzle
+				//fmt.Printf("%3d", puzzle.n) // show progress, DEBUG
 				try = puzzle.Clone()
 				a = 0 // keep value, reset loop from scratch
 				continue
