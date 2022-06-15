@@ -28,7 +28,7 @@ func Build(rand *rand.Rand) (puzzle, solution *Table) {
 	for {
 		try := puzzle.Clone()
 
-		for a = (a + 1) % 81; try.Get(a) == 0; a = (a + 1) % 81 {
+		for ; try.Get(a) == 0; a = (a + 1) % 81 {
 		} // loop until non zero reached
 		try.Set(a, 0)
 

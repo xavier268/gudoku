@@ -3,7 +3,6 @@ package sdk
 import (
 	"fmt"
 	"io"
-	"math/rand"
 	"strings"
 )
 
@@ -142,9 +141,4 @@ func (t *Table) Scan(r io.Reader) {
 		t.Set(i, int(buf[0]-'0'))
 		buf = buf[1:]
 	}
-}
-
-// RandValue provides a random value between 1 and 9 included.
-func RandValue() int {
-	return rand.Intn(8) + 1
 }

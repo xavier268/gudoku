@@ -12,8 +12,8 @@ func (t *Table) Solve() bool {
 	// fmt.Println("Solving for ", t.n)
 	// t.Dump()
 
-	if t.Valid() && t.n == 9*9 {
-		return true // done !
+	if t.n == 9*9 {
+		return t.Valid() // done !
 	}
 
 	for a := 0; a < 9*9; a++ {
@@ -38,8 +38,8 @@ func (t *Table) Solve() bool {
 // Used to ensure unicity of a solution.
 func (t *Table) SolveBack() bool {
 
-	if t.Valid() && t.n == 9*9 {
-		return true // done !
+	if t.n == 9*9 {
+		return t.Valid()
 	}
 
 	for a := 9*9 - 1; a >= 0; a-- {
