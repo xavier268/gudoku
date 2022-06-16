@@ -1,3 +1,7 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/xavier268/gudoku.svg)](https://pkg.go.dev/github.com/xavier268/gudoku)
+
+
+
 # gudoku
 Sudoku builder/solver
 
