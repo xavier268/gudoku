@@ -1,6 +1,11 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/xavier268/gudoku.svg)](https://pkg.go.dev/github.com/xavier268/gudoku)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xavier268/gudoku)](https://goreportcard.com/report/github.com/xavier268/gudoku)
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 0d0701638afeb226c4df472cff7b5bdfc716cdd4
 # gudoku
 Sudoku builder/solver
 
