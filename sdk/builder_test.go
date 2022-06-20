@@ -12,7 +12,7 @@ func TestBuilderVisual(t *testing.T) {
 	rand := rand.New(rand.NewSource(42)) // deterministic
 
 	for i := 0; i < 10; i++ {
-		p, s := BuildRandom(rand)
+		p, s := BuildRandom(rand, 0)
 
 		fmt.Println("PUZZLE :")
 		p.Dump()
@@ -29,7 +29,7 @@ func TestBuilderStats(t *testing.T) {
 
 	for i := 0; i < 50; i++ {
 		ti := time.Now().UnixMicro()
-		p, _ := BuildRandom(rand)
+		p, _ := BuildRandom(rand, 0)
 		fmt.Printf("%d\tBuild a puzzle with %d values and %d zeros\t%9d ms\n", i, p.n, 9*9-p.n, time.Now().UnixMicro()-ti)
 		sum += p.n
 		count++
@@ -44,8 +44,13 @@ func TestBuildFromSolution(_ *testing.T) {
 	solution.Scan(strings.NewReader("123789456 456123789 789456123 231897564 564231897 897564231 312978645 645312978 978645312"))
 
 	ti := time.Now().UnixMicro()
-	p := BuildFromSolution(solution)
+	p := BuildFromSolution(solution, 0)
 	p.Dump()
+	fmt.Printf("\nBuildFrom achieved %d values and %d zeros\t%9d ms\n", p.n, 9*9-p.n, time.Now().UnixMicro()-ti)
+
+	ti = time.Now().UnixMicro()
+	p = BuildFromSolution(solution, 40)
+	p.Dump("With at least 40 non zero values")
 	fmt.Printf("\nBuildFrom achieved %d values and %d zeros\t%9d ms\n", p.n, 9*9-p.n, time.Now().UnixMicro()-ti)
 
 }

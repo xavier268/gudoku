@@ -11,7 +11,7 @@ import (
 func main() {
 
 	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
-	puzzle, solution := sdk.BuildRandom(rand)
+	puzzle, solution := sdk.BuildRandom(rand, 0)
 
 	puzzle.Dump("Puzzle :")
 	solution.Dump("Solution :")

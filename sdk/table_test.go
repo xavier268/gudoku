@@ -101,6 +101,7 @@ func TestValid(t *testing.T) {
 	tt := NewTable()
 	for _, d := range data {
 		tt.Scan(strings.NewReader(d.s))
+		tt.PrintCondensed()
 		got := tt.Valid()
 		want := d.v
 		if got != want {

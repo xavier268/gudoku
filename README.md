@@ -1,7 +1,23 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/xavier268/gudoku.svg)](https://pkg.go.dev/github.com/xavier268/gudoku)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xavier268/gudoku)](https://goreportcard.com/report/github.com/xavier268/gudoku)
+
 # gudoku
 Sudoku builder/solver
 
-# How to use :
+# How to use from the command line
+
+```
+# to generate 5 puzzles, with solutions, with a low difficulty of 15
+go run . -s -c=10 -d=15 -o=easy.txt
+
+# to generate 10 puzzle, without solution, with the maximum difficulty, in less than 10 seconds
+go run . -s=false -c=10 -d=100 -o=difficult.txt -t=30s
+
+# to get help
+go run . -h
+
+```
+# How to use the library directly :
 
 ```
 
@@ -16,7 +32,7 @@ import (
 func main() {
 
 	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
-	puzzle, solution := sdk.BuildRandom(rand)
+	puzzle, solution := sdk.BuildRandom(rand, 0)
 
 	puzzle.Dump("Puzzle :")
 	solution.Dump("Solution :")

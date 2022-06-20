@@ -87,6 +87,7 @@ func (t *Table) Valid() bool {
 }
 
 // To string
+// Output can be scanned back using Scan.
 func (t *Table) String() string {
 	var sb strings.Builder
 	h := "---------------------------------"
@@ -107,14 +108,65 @@ func (t *Table) String() string {
 	return sb.String()
 }
 
+// Same as String, but 0 are printed a '.'
+// Output cannot be scanned back using Scan.
+func (t *Table) StringDot() string {
+	var sb strings.Builder
+	h := "---------------------------------"
+	for a := 0; a < 9*9; a++ {
+		if a%27 == 0 {
+			fmt.Fprintln(&sb, h)
+		}
+		if t.Get(a) == 0 {
+			fmt.Fprint(&sb, "  .")
+		} else {
+			fmt.Fprintf(&sb, "%3d", t.Get(a))
+		}
+		switch a % 9 {
+		case 2, 5:
+			fmt.Fprint(&sb, " | ")
+		case 8:
+			fmt.Fprintln(&sb)
+		default:
+		}
+	}
+	fmt.Fprintln(&sb, h)
+	return sb.String()
+}
+
+// Print in a condensed format.
+// Cannot be scanned back by Scan.
+func (t *Table) PrintCondensed() {
+	fmt.Println()
+	for a := 0; a < 9*9; a++ {
+		if t.Get(a) == 0 {
+			fmt.Print(".")
+		} else {
+			fmt.Printf("%d", t.Get(a))
+		}
+		if a%9 == 8 {
+			fmt.Println()
+		}
+	}
+}
+
+// Print in standard format.
+// Output can be scanned back using Scan.
 func (t *Table) Print() {
 	fmt.Print("\n", t.String())
 }
 
+// Same as Print, but 0 are printed as '.'.
+// Output cannot be scanned back using Scan.
+func (t *Table) PrintDot() {
+	fmt.Print("\n", t.StringDot())
+}
+
+// Same as Print, but with additionnal output information.
 func (t *Table) Dump(message ...string) {
 	fmt.Print("\n\t", message)
 	t.Print()
-	fmt.Printf("There are %d non-zero values and %d zero values\n", t.n, 9*9-t.n)
+	fmt.Printf("There are %d non-zero values and %d zero values\n", t.n, t.Difficulty())
 	if t.Valid() {
 		fmt.Println("The grid is VALID")
 	} else {
@@ -142,4 +194,9 @@ func (t *Table) Scan(r io.Reader) {
 		t.Set(i, int(buf[0]-'0'))
 		buf = buf[1:]
 	}
+}
+
+// Difficulty returns the number of blank (zero) values.
+func (t *Table) Difficulty() int {
+	return 9*9 - t.n
 }
