@@ -43,6 +43,7 @@ var flagMaxDifficulty int
 var flagMaxTime time.Duration
 var flagWithSolutions bool
 var flagOutputFile string
+var flagVerbose bool
 
 func init() {
 	flag.IntVar(&flagCount, "count", 10, "number of sudoku to generate")
@@ -56,6 +57,8 @@ func init() {
 
 	flag.BoolVar(&flagWithSolutions, "solutions", false, "if true, solutions are also generated")
 	flag.BoolVar(&flagWithSolutions, "s", false, "shorthand for -solutions")
+
+	flag.BoolVar(&flagVerbose, "v", false, "print more detailled (verbose) information ")
 
 	flag.StringVar(&flagOutputFile, "output", "sudokus.txt", "file name to output solutions")
 	flag.StringVar(&flagOutputFile, "o", "sudokus.txt", "shorthand for -output")
@@ -85,7 +88,24 @@ func main() {
 
 	fmt.Fprintln(of, "Generated sudoku - ", time.Now())
 
+	if flagVerbose {
+
+		verb := "\n"
+		verb += fmt.Sprintf("\tCount         \t%d\n", flagCount)
+		verb += fmt.Sprintf("\tDifficulty    \t%d\n", flagMaxDifficulty)
+		verb += fmt.Sprintf("\tTimeout       \t%v\n", flagMaxTime)
+		verb += fmt.Sprintf("\tWith solutions\t%v\n", flagWithSolutions)
+		verb += fmt.Sprintf("\tVerbose       \t%v\n", flagVerbose)
+		verb += fmt.Sprintf("\tSaved file    \t%s\n", flagOutputFile)
+
+		fmt.Println(verb)
+		fmt.Fprintln(of, verb)
+
+	}
+
 	for i := 1; i <= flagCount; i++ {
+
+		ti := time.Now()
 
 		select {
 
@@ -99,9 +119,16 @@ func main() {
 			sh.Reset()
 
 			fmt.Fprintln(of, "\nPuzzle N° ", i, "\n", p.StringDot())
+
+			if flagVerbose {
+				verb := fmt.Sprintf("There are %d values and %d blanks,\tGenerated in %v\n", 9*9-p.Difficulty(), p.Difficulty(), time.Since(ti))
+				fmt.Fprint(of, verb)
+				fmt.Printf("%d\t%s", i, verb)
+			}
 			if flagWithSolutions {
 				fmt.Fprintln(of, "\nSolution to puzzle N° ", i, "\n", s.String())
 			}
 		}
+
 	}
 }
