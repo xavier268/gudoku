@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/xavier268/gudoku/sdk"
@@ -67,26 +68,24 @@ func init() {
 
 func main() {
 
+	// set up
 	flag.Parse()
 	var ctx context.Context
 	var cancel context.CancelFunc
-	rd := rand.New(rand.NewSource(time.Now().Unix()))
-	sh := sdk.NewShuffler(rd)
-
-	if flagMaxTime > 0 {
-		ctx, cancel = context.WithTimeout(context.Background(), flagMaxTime)
-		defer cancel()
-	} else {
-		ctx = context.Background()
-	}
-
+	out := make(chan pair, 10)
 	of, err := os.Create(flagOutputFile)
 	if err != nil {
 		panic(err)
 	}
 	defer of.Close()
+	if flagMaxTime > 0 {
+		ctx, cancel = context.WithTimeout(context.Background(), flagMaxTime)
+	} else {
+		ctx, cancel = context.WithCancel(context.Background())
+	}
+	defer cancel()
 
-	fmt.Fprintln(of, "Generated sudoku - ", time.Now())
+	fmt.Fprintln(of, "Auto-generated sudokus\n", time.Now(), "\n(c) 2022 Xavier Gandillot (aka xavier268) ")
 
 	if flagVerbose {
 
@@ -100,9 +99,15 @@ func main() {
 
 		fmt.Println(verb)
 		fmt.Fprintln(of, verb)
-
 	}
 
+	// launch generating goroutines
+	fmt.Printf("Launching %d goroutines\n", runtime.NumCPU())
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go genTab(ctx, out)
+	}
+
+	// read up to the requestestd count or timeout ...
 	for i := 1; i <= flagCount; i++ {
 
 		ti := time.Now()
@@ -110,25 +115,52 @@ func main() {
 		select {
 
 		case <-ctx.Done():
-			fmt.Fprintf(of, "\nTime out after %v \n", flagMaxTime)
+			fmt.Fprintf(of, "\n... Time out after %v \n", flagMaxTime)
+			fmt.Printf("\n... Time out after %v \n", flagMaxTime)
 			return
 
-		default:
-			p, s := sdk.BuildRandom(rd, 9*9-flagMaxDifficulty)
-			sh.Shuffle(p, s)
-			sh.Reset()
+		case pp := <-out:
 
-			fmt.Fprintln(of, "\nPuzzle N° ", i, "\n", p.StringDot())
+			fmt.Fprintln(of, "\nPuzzle N° ", i, "\n", pp.pzl.StringDot())
 
 			if flagVerbose {
-				verb := fmt.Sprintf("There are %d values and %d blanks,\tGenerated in %v\n", 9*9-p.Difficulty(), p.Difficulty(), time.Since(ti))
+				verb := fmt.Sprintf("There are %d values and %d blanks,\tGenerated in %v\n", 9*9-pp.pzl.Difficulty(), pp.pzl.Difficulty(), time.Since(ti))
 				fmt.Fprint(of, verb)
 				fmt.Printf("%d\t%s", i, verb)
 			}
 			if flagWithSolutions {
-				fmt.Fprintln(of, "\nSolution to puzzle N° ", i, "\n", s.String())
+				fmt.Fprintln(of, "\nSolution to puzzle N° ", i, "\n", pp.sol.String())
 			}
 		}
 
 	}
+}
+
+type pair struct{ pzl, sol *sdk.Table }
+
+// generate a couple of puzzle and solution and send it into the out channel
+func genTab(ctx context.Context, out chan pair) {
+
+	rd := rand.New(rand.NewSource(time.Now().Unix() + int64(rand.Uint64()))) // ensure each goroutine has a different seed
+	sh := sdk.NewShuffler(rd)
+
+	if flagVerbose {
+		fmt.Println("===== starting table generator goroutine =========")
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			if flagVerbose {
+				fmt.Println("===== stopping table generator goroutine =========")
+			}
+			return
+		default:
+			p, s := sdk.BuildRandom(rd, 9*9-flagMaxDifficulty)
+			sh.Shuffle(p, s)
+			sh.Reset()
+			out <- pair{p, s}
+		}
+	}
+
 }
