@@ -59,7 +59,7 @@ func init() {
 	flag.BoolVar(&flagWithSolutions, "solutions", false, "if true, solutions are also generated")
 	flag.BoolVar(&flagWithSolutions, "s", false, "shorthand for -solutions")
 
-	flag.BoolVar(&flagVerbose, "v", false, "print more detailled (verbose) information ")
+	flag.BoolVar(&flagVerbose, "v", false, "print more detailed (verbose) information ")
 
 	flag.StringVar(&flagOutputFile, "output", "sudokus.txt", "file name to output solutions")
 	flag.StringVar(&flagOutputFile, "o", "sudokus.txt", "shorthand for -output")
