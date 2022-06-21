@@ -8,10 +8,10 @@ Sudoku builder/solver
 
 ```
 # to generate 5 puzzles, with solutions, with a low difficulty of 15
-go run . -s -c=10 -d=15 -o=easy.txt
+go run . -s -c=5 -d=15 -o=easy.txt
 
-# to generate 10 puzzle, without solution, with the maximum difficulty, in less than 10 seconds
-go run . -s=false -c=10 -d=100 -o=difficult.txt -t=30s
+# to generate 12 puzzle, without solution, with the maximum difficulty, in less than 10 seconds
+go run . -c=12 -d=100 -o=difficult.txt -t=10s
 
 # to get help
 go run . -h
