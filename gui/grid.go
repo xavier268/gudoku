@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
@@ -18,9 +19,27 @@ type Grid struct {
 
 func NewGrid(puzzle *sdk.Table) *Grid {
 	g := new(Grid)
-	g.current = puzzle.Clone()
 	g.puzzle = puzzle.Clone()
+	g.Reset()
+	return g
+}
+
+func (g *Grid) Reset() {
+	g.current = g.puzzle.Clone()
 	g.th = material.NewTheme(gofont.Collection())
+	g.th.Palette.ContrastBg = color.NRGBA{
+		R: 0x50,
+		G: 0x90,
+		B: 0x60,
+		A: 0xff,
+	}
+	g.th.Palette.ContrastFg = color.NRGBA{
+		R: 0,
+		G: 0x30,
+		B: 0,
+		A: 0xff,
+	}
+	g.th.TextSize = 30
 
 	for li := 0; li < 9; li++ {
 		line := g.addLine()
@@ -28,14 +47,17 @@ func NewGrid(puzzle *sdk.Table) *Grid {
 			line.addElement(g)
 		}
 	}
-	return g
+}
+
+func (g *Grid) Valid() bool {
+	return g.current.Valid()
 }
 
 func (g *Grid) Layout(gtx layout.Context) layout.Dimensions {
 	flc := make([]layout.FlexChild, 0, 9)
 	for _, li := range g.lines {
 		liw := li.Layout
-		flc = append(flc, layout.Rigid(liw))
+		flc = append(flc, layout.Flexed(1., liw))
 	}
 	return layout.Flex{Axis: layout.Vertical, Spacing: 0}.Layout(gtx, flc...)
 }
@@ -44,7 +66,7 @@ func (gl *gridLine) Layout(gtx layout.Context) layout.Dimensions {
 	flc := make([]layout.FlexChild, 0, 9)
 	for _, ge := range gl.elts {
 		gew := ge.Layout
-		flc = append(flc, layout.Rigid(
+		flc = append(flc, layout.Flexed(1.,
 			func(gtx layout.Context) layout.Dimensions {
 				return layout.UniformInset(1).Layout(gtx, gew)
 			}))
@@ -74,37 +96,15 @@ type gridElement struct {
 func (gl *gridLine) addElement(g *Grid) {
 	ge := new(gridElement)
 	ge.Clickable = new(widget.Clickable)
-	ge.pos = len(gl.elts)
+	ge.pos = gl.lpos*9 + len(gl.elts)
 	ge.Grid = g
 	gl.elts = append(gl.elts, ge)
 }
 
-/*
-func drawSquare(ops *op.Ops, color color.NRGBA, val int) layout.Dimensions {
-	defer clip.Rect{Max: image.Pt(100, 100)}.Push(ops).Pop()
-	paint.ColorOp{Color: color}.Add(ops)
-	paint.PaintOp{}.Add(ops)
-
-	return layout.Dimensions{Size: image.Pt(100, 100)}
-}
-*/
-
 func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 
-	// Confine the area for pointer events.
-	// defer clip.Rect(image.Rect(0, 0, 50, 50)).Push(gtx.Ops).Pop()
-	/*
-		pointer.InputOp{
-			Tag:   b,
-			Types: pointer.Press | pointer.Release | pointer.Enter | pointer.Leave,
-		}.Add(gtx.Ops)
-		area.Pop()
-	*/
-
-	btn := material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
 	for _, c := range ge.Clicks() {
-
-		v := ge.current.Get(ge.pos) // TODO - wrong calculation, use line !
+		v := ge.current.Get(ge.pos)
 		if c.Modifiers == 0 {
 			v = (v + 1) % 10
 		} else {
@@ -113,6 +113,17 @@ func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 		fmt.Printf("#%d -> %d\n", ge.pos, v) // debug
 		ge.current.Set(ge.pos, v)
 	}
-
-	return btn.Layout(gtx)
+	if ge.current.Get(ge.pos) == 0 {
+		btn := material.Button(ge.th, ge.Clickable, " ")
+		btn.Background = color.NRGBA{
+			R: 0x88,
+			G: 0x55,
+			B: 0x22,
+			A: 0xff,
+		}
+		return btn.Layout(gtx)
+	} else {
+		btn := material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
+		return btn.Layout(gtx)
+	}
 }
