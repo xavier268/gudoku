@@ -4,19 +4,34 @@
 # gudoku
 Sudoku builder/solver
 
+
+# How to launch the GUI version
+
+````
+
+cd gui
+go run .
+
+
+````
 # How to use from the command line
 
 ```
+
 # to generate 5 puzzles, with solutions, with a low difficulty of 15
+cd cli
 go run . -s -c=5 -d=15 -o=easy.txt
 
 # to generate 12 puzzle, without solution, with the maximum difficulty, in less than 10 seconds
 go run . -c=12 -d=100 -o=difficult.txt -t=10s
 
 # to get help
+cd cli
 go run . -h
 
 ```
+
+
 # How to use the library directly :
 
 ```
