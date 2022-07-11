@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
@@ -12,14 +11,15 @@ import (
 )
 
 type Grid struct {
-	puzzle, current *sdk.Table
-	th              *material.Theme
-	lines           []*gridLine
+	puzzle, current, solution *sdk.Table
+	th                        *material.Theme
+	lines                     []*gridLine
 }
 
-func NewGrid(puzzle *sdk.Table) *Grid {
+func NewGrid(puzzle, solution *sdk.Table) *Grid {
 	g := new(Grid)
 	g.puzzle = puzzle.Clone()
+	g.solution = solution.Clone()
 	g.Reset()
 	return g
 }
@@ -27,20 +27,10 @@ func NewGrid(puzzle *sdk.Table) *Grid {
 func (g *Grid) Reset() {
 	g.current = g.puzzle.Clone()
 	g.th = material.NewTheme(gofont.Collection())
-	g.th.Palette.ContrastBg = color.NRGBA{
-		R: 0x50,
-		G: 0x90,
-		B: 0x60,
-		A: 0xff,
-	}
-	g.th.Palette.ContrastFg = color.NRGBA{
-		R: 0,
-		G: 0x30,
-		B: 0,
-		A: 0xff,
-	}
+	g.th.Palette.ContrastBg = contrastBG
+	g.th.Palette.ContrastFg = contratFG
 	g.th.TextSize = 30
-
+	g.lines = nil
 	for li := 0; li < 9; li++ {
 		line := g.addLine()
 		for i := 0; i < 9; i++ {
@@ -55,7 +45,10 @@ func (g *Grid) Valid() bool {
 
 func (g *Grid) Layout(gtx layout.Context) layout.Dimensions {
 	flc := make([]layout.FlexChild, 0, 9)
-	for _, li := range g.lines {
+	for i, li := range g.lines {
+		if i == 3 || i == 6 {
+			flc = append(flc, layout.Flexed(0.2, layout.Spacer{Width: 4, Height: 4}.Layout))
+		}
 		liw := li.Layout
 		flc = append(flc, layout.Flexed(1., liw))
 	}
@@ -64,7 +57,10 @@ func (g *Grid) Layout(gtx layout.Context) layout.Dimensions {
 
 func (gl *gridLine) Layout(gtx layout.Context) layout.Dimensions {
 	flc := make([]layout.FlexChild, 0, 9)
-	for _, ge := range gl.elts {
+	for i, ge := range gl.elts {
+		if i == 3 || i == 6 {
+			flc = append(flc, layout.Flexed(0.2, layout.Spacer{Width: 4, Height: 4}.Layout))
+		}
 		gew := ge.Layout
 		flc = append(flc, layout.Flexed(1.,
 			func(gtx layout.Context) layout.Dimensions {
@@ -103,27 +99,28 @@ func (gl *gridLine) addElement(g *Grid) {
 
 func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 
-	for _, c := range ge.Clicks() {
-		v := ge.current.Get(ge.pos)
-		if c.Modifiers == 0 {
-			v = (v + 1) % 10
-		} else {
-			v = (v + 9) % 10
+	if ge.puzzle.Get(ge.pos) == 0 { // only if value can be modified, do not modify initial puzzle values.
+		for _, c := range ge.Clicks() {
+			v := ge.current.Get(ge.pos)
+			if c.Modifiers == 0 {
+				v = (v + 1) % 10
+			} else {
+				v = (v + 9) % 10
+			}
+			fmt.Printf("#%d -> %d\n", ge.pos, v) // debug
+			ge.current.Set(ge.pos, v)
 		}
-		fmt.Printf("#%d -> %d\n", ge.pos, v) // debug
-		ge.current.Set(ge.pos, v)
 	}
-	if ge.current.Get(ge.pos) == 0 {
-		btn := material.Button(ge.th, ge.Clickable, " ")
-		btn.Background = color.NRGBA{
-			R: 0x88,
-			G: 0x55,
-			B: 0x22,
-			A: 0xff,
-		}
-		return btn.Layout(gtx)
-	} else {
-		btn := material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
-		return btn.Layout(gtx)
+
+	btn := material.Button(ge.th, ge.Clickable, "")
+	switch {
+
+	case ge.puzzle.Get(ge.pos) != 0:
+		btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
+		btn.Background = specialBG
+	case ge.puzzle.Get(ge.pos) == 0 && ge.current.Get(ge.pos) != 0:
+		btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
 	}
+
+	return btn.Layout(gtx)
 }

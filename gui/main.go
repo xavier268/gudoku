@@ -3,7 +3,9 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"gioui.org/app"
 	"gioui.org/io/system"
@@ -19,10 +21,22 @@ func main() {
 
 // launch the main window
 func runMainWindow() {
+
+	// prepare puzzle and solution
+	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
+	puzzle, solution := sdk.BuildRandom(rand, 0)
+	s := sdk.NewShuffler(rand)
+	s.Shuffle(puzzle, solution)
+
+	// create gui
 	w := app.NewWindow()
 	var ops op.Ops
-	g := Grid(*NewGrid(sdk.NewTable()))
+	g := Grid(*NewGrid(puzzle, solution))
+	vb := g.newValButton()
+	sr := g.newResetButton()
+	sv := g.newSolveButton()
 
+	// main event loop
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
@@ -36,8 +50,17 @@ func runMainWindow() {
 			gtx := layout.NewContext(&ops, e)
 
 			// draw to ops
-			g.Layout(gtx)
-			//layout.UniformInset(100).Layout(gtx, btn.Layout)
+			layout.Flex{Axis: layout.Vertical}.Layout(
+				gtx,
+				layout.Rigid(
+					func(gtx layout.Context) layout.Dimensions {
+						return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
+							layout.Rigid(sr.Layout),
+							layout.Rigid(sv.Layout),
+							layout.Rigid(vb.Layout))
+					}),
+				layout.Rigid(g.Layout),
+			)
 
 			// update display
 			e.Frame(gtx.Ops)
