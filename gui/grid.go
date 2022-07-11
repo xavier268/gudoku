@@ -5,6 +5,7 @@ import (
 
 	"gioui.org/font/gofont"
 	"gioui.org/layout"
+	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"github.com/xavier268/gudoku/sdk"
@@ -29,7 +30,7 @@ func (g *Grid) Reset() {
 	g.th = material.NewTheme(gofont.Collection())
 	g.th.Palette.ContrastBg = contrastBG
 	g.th.Palette.ContrastFg = contratFG
-	g.th.TextSize = 30
+	g.th.TextSize = unit.Sp(flagFontSize)
 	g.lines = nil
 	for li := 0; li < 9; li++ {
 		line := g.addLine()

@@ -16,13 +16,16 @@ import (
 	"github.com/xavier268/gudoku/sdk"
 )
 
-var flagMaxDifficulty int
+var flagMaxDifficulty, flagFontSize int
 var flagVerbose bool
 
 func init() {
 
 	flag.IntVar(&flagMaxDifficulty, "difficulty", 9*9, "maximum allowed difficulty (number of blank values)")
 	flag.IntVar(&flagMaxDifficulty, "d", 9*9, "shorthand for -difficulty")
+
+	flag.IntVar(&flagFontSize, "f", 30, "shorthand for -font")
+	flag.IntVar(&flagFontSize, "font", 30, "font size")
 
 	flag.BoolVar(&flagVerbose, "v", false, "print more detailed (verbose) information ")
 
