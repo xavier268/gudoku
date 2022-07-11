@@ -52,7 +52,7 @@ func (g *Grid) Layout(gtx layout.Context) layout.Dimensions {
 		liw := li.Layout
 		flc = append(flc, layout.Flexed(1., liw))
 	}
-	return layout.Flex{Axis: layout.Vertical, Spacing: 0}.Layout(gtx, flc...)
+	return layout.Flex{Axis: layout.Vertical, Spacing: layout.SpaceSides}.Layout(gtx, flc...)
 }
 
 func (gl *gridLine) Layout(gtx layout.Context) layout.Dimensions {
@@ -67,7 +67,7 @@ func (gl *gridLine) Layout(gtx layout.Context) layout.Dimensions {
 				return layout.UniformInset(1).Layout(gtx, gew)
 			}))
 	}
-	return layout.Flex{Axis: layout.Horizontal, Spacing: 0}.Layout(gtx, flc...)
+	return layout.Flex{Axis: layout.Horizontal, Spacing: layout.SpaceSides}.Layout(gtx, flc...)
 }
 
 type gridLine struct {
@@ -107,7 +107,9 @@ func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 			} else {
 				v = (v + 9) % 10
 			}
-			fmt.Printf("#%d -> %d\n", ge.pos, v) // debug
+			if flagVerbose {
+				fmt.Printf("#%d -> %d\n", ge.pos, v)
+			}
 			ge.current.Set(ge.pos, v)
 		}
 	}

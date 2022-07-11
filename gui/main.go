@@ -2,7 +2,9 @@
 package main
 
 import (
-	"log"
+	"flag"
+	"fmt"
+
 	"math/rand"
 	"os"
 	"time"
@@ -14,7 +16,23 @@ import (
 	"github.com/xavier268/gudoku/sdk"
 )
 
+var flagMaxDifficulty int
+var flagVerbose bool
+
+func init() {
+
+	flag.IntVar(&flagMaxDifficulty, "difficulty", 9*9, "maximum allowed difficulty (number of blank values)")
+	flag.IntVar(&flagMaxDifficulty, "d", 9*9, "shorthand for -difficulty")
+
+	flag.BoolVar(&flagVerbose, "v", false, "print more detailed (verbose) information ")
+
+}
+
 func main() {
+	flag.Parse()
+	if flagVerbose {
+		fmt.Println("Gudoku is a sudoku builder/solver - (c) Xavier Gandillot 2022")
+	}
 	go runMainWindow()
 	app.Main()
 }
@@ -24,7 +42,7 @@ func runMainWindow() {
 
 	// prepare puzzle and solution
 	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
-	puzzle, solution := sdk.BuildRandom(rand, 0)
+	puzzle, solution := sdk.BuildRandom(rand, 81-flagMaxDifficulty)
 	s := sdk.NewShuffler(rand)
 	s.Shuffle(puzzle, solution)
 
@@ -42,7 +60,7 @@ func runMainWindow() {
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			if e.Err != nil {
-				log.Fatal(e.Err)
+				fmt.Println(e.Err)
 			}
 			os.Exit(0)
 		case system.FrameEvent:
