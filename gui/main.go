@@ -6,14 +6,11 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/widget/material"
+	"github.com/xavier268/gudoku/sdk"
 )
-
-var TH = material.NewTheme(gofont.Collection())
 
 func main() {
 	go runMainWindow()
@@ -24,7 +21,7 @@ func main() {
 func runMainWindow() {
 	w := app.NewWindow()
 	var ops op.Ops
-	btn := NewGridElement()
+	g := Grid(*NewGrid(sdk.NewTable()))
 
 	for {
 		e := <-w.Events()
@@ -37,9 +34,11 @@ func runMainWindow() {
 		case system.FrameEvent:
 			// new frame context
 			gtx := layout.NewContext(&ops, e)
-			// draw to ops
 
-			layout.UniformInset(100).Layout(gtx, btn.Layout)
+			// draw to ops
+			g.Layout(gtx)
+			//layout.UniformInset(100).Layout(gtx, btn.Layout)
+
 			// update display
 			e.Frame(gtx.Ops)
 		}
