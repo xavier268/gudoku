@@ -16,6 +16,7 @@ type Grid struct {
 	th                        *material.Theme
 	lines                     []*gridLine
 	pzchan                    chan pair //  pair{puzzle, solution} generator
+	cheat                     bool      // cheat mode displays the solution
 }
 
 func NewGrid(puzzle, solution *sdk.Table) *Grid {
@@ -110,21 +111,27 @@ func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 			} else {
 				v = (v + 9) % 10
 			}
-			if flagVerbose {
+			/*if flagVerbose {
 				fmt.Printf("#%d -> %d\n", ge.pos, v)
-			}
+			}*/
 			ge.current.Set(ge.pos, v)
 		}
 	}
 
 	btn := material.Button(ge.th, ge.Clickable, "")
-	switch {
-
-	case ge.puzzle.Get(ge.pos) != 0:
-		btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
-		btn.Background = specialBG
-	case ge.puzzle.Get(ge.pos) == 0 && ge.current.Get(ge.pos) != 0:
-		btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
+	if ge.cheat {
+		btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.solution.Get(ge.pos)))
+		if ge.puzzle.Get(ge.pos) != 0 {
+			btn.Background = specialBG
+		}
+	} else {
+		switch {
+		case ge.puzzle.Get(ge.pos) != 0:
+			btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
+			btn.Background = specialBG
+		case ge.puzzle.Get(ge.pos) == 0 && ge.current.Get(ge.pos) != 0:
+			btn = material.Button(ge.th, ge.Clickable, fmt.Sprint(ge.current.Get(ge.pos)))
+		}
 	}
 
 	return btn.Layout(gtx)

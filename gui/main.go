@@ -57,7 +57,7 @@ func runMainWindow() {
 	nw := g.newNwButton()
 	vb := g.newValButton()
 	sr := g.newResetButton()
-	sv := g.newSolveButton()
+	sv := g.newCheatButton()
 
 	// launch generator(s) for alternative solutions in advance in the background, to ensure responsiveness ...
 	for i := 0; i < runtime.NumCPU(); i++ {

@@ -24,7 +24,7 @@ type resetButton struct {
 	grid *Grid
 }
 
-type solveButton struct {
+type cheatButton struct {
 	*widget.Clickable
 	grid *Grid
 }
@@ -36,8 +36,8 @@ func (g *Grid) newNwButton() *nwButton {
 	return vb
 }
 
-func (g *Grid) newSolveButton() *solveButton {
-	vb := new(solveButton)
+func (g *Grid) newCheatButton() *cheatButton {
+	vb := new(cheatButton)
 	vb.grid = g
 	vb.Clickable = new(widget.Clickable)
 	return vb
@@ -82,11 +82,10 @@ func (sr *resetButton) Layout(gtx layout.Context) layout.Dimensions {
 	btn.Background = menuColor
 	return layout.UniformInset(10).Layout(gtx, btn.Layout)
 }
-func (sr *solveButton) Layout(gtx layout.Context) layout.Dimensions {
-	btn := material.Button(sr.grid.th, sr.Clickable, "Solve")
-	if len(sr.Clicks()) != 0 {
-		sr.grid.Reset()
-		sr.grid.current = sr.grid.solution.Clone()
+func (sr *cheatButton) Layout(gtx layout.Context) layout.Dimensions {
+	btn := material.Button(sr.grid.th, sr.Clickable, "Cheat")
+	if len(sr.Clicks())%2 != 0 {
+		sr.grid.cheat = !sr.grid.cheat
 	}
 	btn.Background = menuColor
 	return layout.UniformInset(10).Layout(gtx, btn.Layout)
