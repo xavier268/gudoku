@@ -12,6 +12,8 @@ Sudoku builder/solver
 cd gui
 go run .
 
+# or, to limit difficulty to 45 blanks
+go run . -d 45
 
 ````
 
