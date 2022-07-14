@@ -17,6 +17,8 @@ go run . -d 45
 
 ````
 
+Click on a green position and the value will increase, Shift-Click and the value will decrease.
+
 ![example gui screen](ex-gui.png)
 
 # How to use from the command line
