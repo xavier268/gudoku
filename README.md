@@ -14,6 +14,9 @@ go run .
 
 
 ````
+
+![example gui screen](ex-gui.png)
+
 # How to use from the command line
 
 ```
