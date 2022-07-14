@@ -86,12 +86,12 @@ func main() {
 	defer cancel()
 
 	fmt.Fprintln(of, "Auto-generated sudokus\n", time.Now())
-	fmt.Fprintf(of, "\nCLI Version : %s\nSdk Version : %s\n", VERSION, sdk.VERSION)
+	fmt.Fprintf(of, "\nCLI Version : %s\nSdk Version : %s\n%s\n", VERSION, sdk.VERSION, sdk.COPYRIGHT)
 
 	if flagVerbose {
 
 		verb := "\n"
-		verb += fmt.Sprintf("CLI Version : %s\nSdk Version : %s\n", VERSION, sdk.VERSION)
+		verb += fmt.Sprintf("CLI Version : %s\nSdk Version : %s\n%s\n", VERSION, sdk.VERSION, sdk.COPYRIGHT)
 		verb += fmt.Sprintf("\tCount         \t%d\n", flagCount)
 		verb += fmt.Sprintf("\tDifficulty    \t%d\n", flagMaxDifficulty)
 		verb += fmt.Sprintf("\tTimeout       \t%v\n", flagMaxTime)

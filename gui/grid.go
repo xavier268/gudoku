@@ -20,7 +20,7 @@ type Grid struct {
 
 func NewGrid(puzzle, solution *sdk.Table) *Grid {
 	g := new(Grid)
-	g.pzchan = make(chan pair, 10) // up to 10 solutions in advance ...
+	g.pzchan = make(chan pair, 10) // up to 10 solutions will be precomputed in advance ...
 	g.puzzle = puzzle.Clone()
 	g.solution = solution.Clone()
 	g.Reset()

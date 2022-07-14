@@ -53,15 +53,15 @@ func runMainWindow() {
 	// create gui
 	w := app.NewWindow()
 	var ops op.Ops
-	g := *NewGrid(puzzle, solution)
+	g := NewGrid(puzzle, solution)
 	nw := g.newNwButton()
 	vb := g.newValButton()
 	sr := g.newResetButton()
 	sv := g.newSolveButton()
 
-	// launch generator for alternative solutions, avoid freezing on loong computations
+	// launch generator(s) for alternative solutions in advance in the background, to ensure responsiveness ...
 	for i := 0; i < runtime.NumCPU(); i++ {
-		go gen(rand.New(rand.NewSource(rd.Int63())), g.pzchan) // independant, but different random generators for each !
+		go gen(rand.New(rand.NewSource(rd.Int63())), g.pzchan) // notice how different random generators are used to avoid concurrency issues between go routines.
 	}
 
 	// main event loop
@@ -87,7 +87,9 @@ func runMainWindow() {
 							layout.Rigid(nw.Layout),
 							layout.Rigid(sr.Layout),
 							layout.Rigid(sv.Layout),
-							layout.Rigid(vb.Layout))
+							layout.Rigid(vb.Layout),
+							layout.Flexed(1., aboutWidget(g)),
+						)
 					}),
 				layout.Rigid(g.Layout),
 			)

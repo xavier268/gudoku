@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
+
 	"gioui.org/layout"
+	"gioui.org/text"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+	"github.com/xavier268/gudoku/sdk"
 )
 
 type nwButton struct {
@@ -101,4 +105,11 @@ func (vb *valButton) Layout(gtx layout.Context) layout.Dimensions {
 	}
 	btn.Background = menuColor
 	return layout.UniformInset(10).Layout(gtx, btn.Layout)
+}
+
+func aboutWidget(g *Grid) layout.Widget {
+	lbl := material.Label(g.th, 10, fmt.Sprintf("\nGui : %s - Sdk : %s, Difficulty : %d\n%s", VERSION, sdk.VERSION, flagMaxDifficulty, sdk.COPYRIGHT))
+	lbl.Alignment = text.End
+
+	return func(gtx layout.Context) layout.Dimensions { return layout.UniformInset(10).Layout(gtx, lbl.Layout) }
 }
