@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"runtime"
 
 	"math/rand"
 	"os"
@@ -44,18 +45,24 @@ func main() {
 func runMainWindow() {
 
 	// prepare puzzle and solution
-	rand := rand.New(rand.NewSource(time.Now().UnixMicro()))
-	puzzle, solution := sdk.BuildRandom(rand, 81-flagMaxDifficulty)
-	s := sdk.NewShuffler(rand)
+	rd := rand.New(rand.NewSource(time.Now().UnixMicro()))
+	puzzle, solution := sdk.BuildRandom(rd, 81-flagMaxDifficulty)
+	s := sdk.NewShuffler(rd)
 	s.Shuffle(puzzle, solution)
 
 	// create gui
 	w := app.NewWindow()
 	var ops op.Ops
-	g := Grid(*NewGrid(puzzle, solution))
+	g := *NewGrid(puzzle, solution)
+	nw := g.newNwButton()
 	vb := g.newValButton()
 	sr := g.newResetButton()
 	sv := g.newSolveButton()
+
+	// launch generator for alternative solutions, avoid freezing on loong computations
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go gen(rand.New(rand.NewSource(rd.Int63())), g.pzchan) // independant, but different random generators for each !
+	}
 
 	// main event loop
 	for {
@@ -65,6 +72,7 @@ func runMainWindow() {
 			if e.Err != nil {
 				fmt.Println(e.Err)
 			}
+			close(g.pzchan)
 			os.Exit(0)
 		case system.FrameEvent:
 			// new frame context
@@ -76,6 +84,7 @@ func runMainWindow() {
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
 						return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
+							layout.Rigid(nw.Layout),
 							layout.Rigid(sr.Layout),
 							layout.Rigid(sv.Layout),
 							layout.Rigid(vb.Layout))

@@ -15,10 +15,12 @@ type Grid struct {
 	puzzle, current, solution *sdk.Table
 	th                        *material.Theme
 	lines                     []*gridLine
+	pzchan                    chan pair //  pair{puzzle, solution} generator
 }
 
 func NewGrid(puzzle, solution *sdk.Table) *Grid {
 	g := new(Grid)
+	g.pzchan = make(chan pair, 10) // up to 10 solutions in advance ...
 	g.puzzle = puzzle.Clone()
 	g.solution = solution.Clone()
 	g.Reset()

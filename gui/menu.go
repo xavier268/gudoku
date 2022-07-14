@@ -6,6 +6,10 @@ import (
 	"gioui.org/widget/material"
 )
 
+type nwButton struct {
+	*widget.Clickable
+	grid *Grid
+}
 type valButton struct {
 	*widget.Clickable
 	grid *Grid
@@ -19,6 +23,13 @@ type resetButton struct {
 type solveButton struct {
 	*widget.Clickable
 	grid *Grid
+}
+
+func (g *Grid) newNwButton() *nwButton {
+	vb := new(nwButton)
+	vb.grid = g
+	vb.Clickable = new(widget.Clickable)
+	return vb
 }
 
 func (g *Grid) newSolveButton() *solveButton {
@@ -40,6 +51,23 @@ func (g *Grid) newResetButton() *resetButton {
 	sr.grid = g
 	sr.Clickable = new(widget.Clickable)
 	return sr
+}
+
+func (sr *nwButton) Layout(gtx layout.Context) layout.Dimensions {
+	btn := material.Button(sr.grid.th, sr.Clickable, "New")
+	btn.Background = specialBG
+	if len(sr.Clicks()) != 0 {
+		// get new puzzle and solution
+		p := <-sr.grid.pzchan
+
+		//recreate new grid
+		sr.grid.current = p.puzzle.Clone()
+		sr.grid.puzzle = p.puzzle.Clone()
+		sr.grid.solution = p.solution.Clone()
+		sr.grid.Reset()
+	}
+	return layout.UniformInset(10).Layout(gtx, btn.Layout)
+
 }
 
 func (sr *resetButton) Layout(gtx layout.Context) layout.Dimensions {
