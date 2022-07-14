@@ -124,6 +124,9 @@ func (ge *gridElement) Layout(gtx layout.Context) layout.Dimensions {
 		if ge.puzzle.Get(ge.pos) != 0 {
 			btn.Background = specialBG
 		}
+		if ge.current.Get(ge.pos) != 0 && ge.current.Get(ge.pos) != ge.solution.Get(ge.pos) { // invaid current position, mark it in red
+			btn.Color = notOkColor
+		}
 	} else {
 		switch {
 		case ge.puzzle.Get(ge.pos) != 0:
