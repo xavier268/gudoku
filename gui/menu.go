@@ -107,7 +107,7 @@ func (vb *valButton) Layout(gtx layout.Context) layout.Dimensions {
 }
 
 func aboutWidget(g *Grid) layout.Widget {
-	lbl := material.Label(g.th, 10, fmt.Sprintf("\nGui : %s - Sdk : %s, Difficulty : %d\n%s", VERSION, sdk.VERSION, flagMaxDifficulty, sdk.COPYRIGHT))
+	lbl := material.Label(g.th, 10, fmt.Sprintf("\nGui : %s - Sdk : %s, Difficulty : %d/%d\n%s", VERSION, sdk.VERSION, g.puzzle.Difficulty(), flagMaxDifficulty, sdk.COPYRIGHT))
 	lbl.Alignment = text.End
 
 	return func(gtx layout.Context) layout.Dimensions { return layout.UniformInset(10).Layout(gtx, lbl.Layout) }
