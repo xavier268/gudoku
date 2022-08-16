@@ -26,10 +26,10 @@ func (s *Shuffler) Reset() {
 		s.pp[i] = i
 	}
 
-	// shuffle values
+	// shuffle valuess
 	for i := 0; i < 20; i++ {
-		a := s.rd.Intn(8) + 1
-		b := s.rd.Intn(8) + 1
+		a := s.rd.Intn(9) + 1
+		b := s.rd.Intn(9) + 1
 		s.ii[a], s.ii[b] = s.ii[b], s.ii[a]
 	}
 
