@@ -1,6 +1,6 @@
 module github.com/xavier268/gudoku
 
-go 1.19
+go 1.20
 
 require gioui.org v0.0.0-20220816134846-8425d2a6aa8b
 
